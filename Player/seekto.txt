@@ -1,0 +1,39 @@
+ fun seekTo(time: Float)
+
+override fun seekTo(time: Float) = youTubePlayer.seekTo(time)
+
+    override fun seekTo(time: Float) {
+        val message = JSONUtils.buildFlatJson(
+                "command" to ChromecastCommunicationConstants.SEEK_TO,
+                "time" to time.toString()
+        )
+
+
+
+ // -- SeekBar, this code will be refactored
+
+    private boolean seekBarTouchStarted = false;
+    // I need this variable because onCurrentSecond gets called every 100 mill, so without the proper checks on this variable in onCurrentSeconds the seek bar glitches when touched.
+    private int newSeekBarProgress = -1;
+
+    @Override
+    public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+        currentTimeTextView.setText(TimeUtilities.formatTime(i));
+    }
+
+    @Override
+    public void onStartTrackingTouch(SeekBar seekBar) {
+        seekBarTouchStarted = true;
+    }
+
+    @Override
+    public void onStopTrackingTouch(SeekBar seekBar) {
+        if (isPlaying)
+            newSeekBarProgress = seekBar.getProgress();
+
+        if(youTubePlayer != null)
+            youTubePlayer.seekTo(seekBar.getProgress());
+        seekBarTouchStarted = false;
+    }
+}
+
